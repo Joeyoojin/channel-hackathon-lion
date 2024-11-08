@@ -9,6 +9,8 @@ export const Container = styled.div`
   flex-direction: column;
   gap: 45px;
   border-radius: 30px;
+  max-height: 380px;
+  overflow-y: auto;
 `
 
 export const Header = styled.div`
