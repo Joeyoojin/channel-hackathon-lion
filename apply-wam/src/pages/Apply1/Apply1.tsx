@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { setSize } from '../../utils/wam'
-import * as S from './Apply1.styled'
+
+import * as S from './Apply1.styled.ts'
 
 function Apply1() {
   const navigate = useNavigate()
@@ -10,16 +10,12 @@ function Apply1() {
   const [email, setEmail] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
 
-  useEffect(() => {
-    setSize(385, 482)
-  }, [])
-
   const handleNext = () => {
     navigate('/apply2', {
       state: {
         name,
-        email
-      }
+        email,
+      },
     })
   }
 

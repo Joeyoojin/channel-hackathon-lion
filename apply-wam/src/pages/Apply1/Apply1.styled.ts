@@ -2,8 +2,8 @@
 import styled from '@emotion/styled'
 
 export const Container = styled.div`
-  width: 385px;
-  height: 670px;
+  width: auto;
+  height: auto;
   padding: 20px;
   background-color: white;
   border-radius: 30px;
@@ -12,6 +12,8 @@ export const Container = styled.div`
   justify-content: start;
   align-items: center;
   gap: 45px;
+  overflow-y: auto;
+  max-height: 380px;
 `
 
 export const Header = styled.div`

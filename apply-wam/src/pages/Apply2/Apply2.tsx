@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
-import { callFunction, getWamData, setSize } from '../../utils/wam'
-import * as S from './Apply2.styled'
+import { useMemo, useState } from 'react'
+import { callFunction, getWamData } from '../../utils/wam'
+import * as S from './Apply2.styled.ts'
 import { useLocation } from 'react-router-dom'
 
 function Apply2() {
@@ -11,10 +11,6 @@ function Apply2() {
   const [experience, setExperience] = useState('')
   const [project, setProject] = useState('')
 
-  useEffect(() => {
-    setSize(385, 686)
-  }, [])
-
   const appId = useMemo(() => getWamData('appId') ?? '', [])
   const chatId = useMemo(() => getWamData('chatId') ?? '', [])
   // const chatType = useMemo(() => getWamData('chatType') ?? '', [])
@@ -24,7 +20,8 @@ function Apply2() {
 
   const question1 = '1. 지원 동기를 작성해주세요.'
   const question2 = '2. 관련 경험을 작성해주세요.'
-  const question3 = '3. 멋쟁이사자처럼에서 자신이 만들고 싶은 프로젝트를 제안해주세요.'
+  const question3 =
+    '3. 멋쟁이사자처럼에서 자신이 만들고 싶은 프로젝트를 제안해주세요.'
 
   const handleSubmit = async (): Promise<void> => {
     await callFunction(appId, 'applyAction', {
