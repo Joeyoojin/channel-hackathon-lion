@@ -1,18 +1,53 @@
-import { useEffect, useState } from 'react'
-import { setSize } from '../../utils/wam'
+import { useEffect, useMemo, useState } from 'react'
+import { callFunction, getWamData, setSize } from '../../utils/wam'
 import * as S from './Apply2.styled'
+import { useLocation } from 'react-router-dom'
 
 function Apply2() {
+  const location = useLocation()
+  const { name, email } = location.state || {}
+
   const [motivation, setMotivation] = useState('')
   const [experience, setExperience] = useState('')
+  const [project, setProject] = useState('')
 
   useEffect(() => {
     setSize(385, 686)
   }, [])
 
-  const handleSubmit = () => {
-    // TODO: Implement form submission
-    console.log('Form submitted')
+  const appId = useMemo(() => getWamData('appId') ?? '', [])
+  const chatId = useMemo(() => getWamData('chatId') ?? '', [])
+  const chatType = useMemo(() => getWamData('chatType') ?? '', [])
+  const broadcast = useMemo(() => Boolean(getWamData('broadcast') ?? false), [])
+  const rootMessageId = useMemo(() => getWamData('rootMessageId'), [])
+
+  const question1 = '1. 지원 동기를 작성해주세요.'
+  const question2 = '2. 관련 경험을 작성해주세요.'
+  const question3 = '3. 멋쟁이사자처럼에서 자신이 만들고 싶은 프로젝트를 제안해주세요.'
+
+  const handleSubmit = async (sender: string): Promise<void> => {
+    if (chatType === 'userChat') {
+      switch (sender) {
+        case 'bot':
+          await callFunction(appId, 'applyAction', {
+            input: {
+              groupId: chatId,
+              broadcast,
+              rootMessageId,
+              username: name,
+              email,
+              resumeData: [
+                { Q1: question1, A1: motivation },
+                { Q2: question2, A2: experience },
+                { Q3: question3, A3: project },
+              ],
+            },
+          })
+          break
+        default:
+          console.error('Invalid message sender')
+      }
+    }
   }
 
   return (
@@ -23,40 +58,39 @@ function Apply2() {
 
       <S.QuestionContainer>
         <S.QuestionHeader>
-          <S.QuestionText>
-            1. 멋쟁이사자처럼 13기에 지원한 동기를 적어주세요.
-          </S.QuestionText>
+          <S.QuestionText>{question1}</S.QuestionText>
         </S.QuestionHeader>
         <S.TextArea
           value={motivation}
-          onChange={(e) => setMotivation(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+            setMotivation(e.target.value)
+          }
           placeholder="띄어쓰기 포함 500자 이내로 작성해주세요"
         />
       </S.QuestionContainer>
 
       <S.QuestionContainer>
         <S.QuestionHeader>
-          <S.QuestionText>
-            2. 협업 과정에서 자신의 장점이 드러났던 경험과 단점을 극복했던
-            경험을 하나씩 소개해주세요.
-          </S.QuestionText>
+          <S.QuestionText>{question2}</S.QuestionText>
         </S.QuestionHeader>
         <S.TextArea
           value={experience}
-          onChange={(e) => setExperience(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+            setExperience(e.target.value)
+          }
           placeholder="띄어쓰기 포함 600자 이내로 작성해주세요"
         />
       </S.QuestionContainer>
 
       <S.QuestionContainer>
         <S.QuestionHeader>
-          <S.QuestionText>
-            3. 멋쟁이사자처럼에서 자신이 만들고 싶은 프로젝트를 제안해주세요.
-          </S.QuestionText>
+          <S.QuestionText>{question3}</S.QuestionText>
         </S.QuestionHeader>
         <S.TextArea
-          value={experience}
-          onChange={(e) => setExperience(e.target.value)}
+          value={project}
+          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+            setProject(e.target.value)
+          }
           placeholder="띄어쓰기 포함 700자 이내로 작성해주세요"
         />
       </S.QuestionContainer>
