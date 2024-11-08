@@ -13,35 +13,26 @@ function ResultCheck() {
   const broadcast = useMemo(() => Boolean(getWamData('broadcast') ?? false), [])
   const rootMessageId = useMemo(() => getWamData('rootMessageId'), [])
   const channelId = useMemo(() => getWamData('channelId') ?? '', [])
-  const chatType = useMemo(() => getWamData('chatType') ?? '', [])
+//   const chatType = useMemo(() => getWamData('chatType') ?? '', [])
 
-  const handleSubmit = async (sender: string): Promise<void> => {
-    if (chatType === 'userChat') {
-      switch (sender) {
-        case 'bot': {
-          const response = await callFunction(appId, 'result-check', {
-            input: {
-              channelId: channelId,
-              groupId: chatId,
-              broadcast,
-              rootMessageId,
-              username: name,
-              email,
-            },
-          })
+  const handleSubmit = async (): Promise<void> => {
+      const response = await callFunction(appId, 'result-check', {
+      input: {
+        channelId: channelId,
+        groupId: chatId,
+        broadcast,
+        rootMessageId,
+        username: name,
+        email,
+      },
+    })
 
-          if (response.result) {
-            navigate('/result/pass', { 
-              state: { name, email } 
-            })
-          } else {
-            navigate('/result/fail')
-          }
-          break
-        }
-        default:
-          console.error('Invalid message sender')
-      }
+    if (response.result) {
+      navigate('/result/pass', { 
+        state: { name, email } 
+      })
+    } else {
+      navigate('/result/fail')
     }
   }
 

@@ -17,7 +17,7 @@ function Apply2() {
 
   const appId = useMemo(() => getWamData('appId') ?? '', [])
   const chatId = useMemo(() => getWamData('chatId') ?? '', [])
-  const chatType = useMemo(() => getWamData('chatType') ?? '', [])
+  // const chatType = useMemo(() => getWamData('chatType') ?? '', [])
   const broadcast = useMemo(() => Boolean(getWamData('broadcast') ?? false), [])
   const rootMessageId = useMemo(() => getWamData('rootMessageId'), [])
   const channelId = useMemo(() => getWamData('channelId') ?? '', [])
@@ -26,30 +26,22 @@ function Apply2() {
   const question2 = '2. 관련 경험을 작성해주세요.'
   const question3 = '3. 멋쟁이사자처럼에서 자신이 만들고 싶은 프로젝트를 제안해주세요.'
 
-  const handleSubmit = async (sender: string): Promise<void> => {
-    if (chatType === 'userChat') {
-      switch (sender) {
-        case 'bot':
-          await callFunction(appId, 'applyAction', {
-            input: {
-              channelId: channelId,
-              groupId: chatId,
-              broadcast,
-              rootMessageId,
-              username: name,
-              email,
-              resumeData: [
-                { Q1: question1, A1: motivation },
-                { Q2: question2, A2: experience },
-                { Q3: question3, A3: project },
-              ],
-            },
-          })
-          break
-        default:
-          console.error('Invalid message sender')
-      }
-    }
+  const handleSubmit = async (): Promise<void> => {
+    await callFunction(appId, 'applyAction', {
+      input: {
+        channelId: channelId,
+        groupId: chatId,
+        broadcast,
+        rootMessageId,
+        username: name,
+        email,
+        resumeData: [
+          { Q1: question1, A1: motivation },
+          { Q2: question2, A2: experience },
+          { Q3: question3, A3: project },
+        ],
+      },
+    })
   }
 
   return (
