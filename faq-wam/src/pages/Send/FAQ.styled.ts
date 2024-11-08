@@ -11,7 +11,9 @@ export const Container = styled.div`
   justify-content: start;
   align-items: center;
   gap: 45px;
-  position: relative; /* 상대 위치로 설정 */
+  position: relative;
+  max-height: 380px;
+  overflow-y: auto; /* 상대 위치로 설정 */
 `
 
 export const Header = styled.div`
