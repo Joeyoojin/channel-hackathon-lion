@@ -1,14 +1,9 @@
-import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { setSize } from '../../utils/wam'
+
 import * as S from './ResultPass.styled'
 
 function ResultPass() {
   const navigate = useNavigate()
-
-  useEffect(() => {
-    setSize(385, 224)
-  }, [])
 
   return (
     <S.Container>
