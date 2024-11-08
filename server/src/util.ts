@@ -360,7 +360,7 @@ async function interviewScheduleStatus(channelId: string, groupId: string, broad
     try {
         // Supabase에서 면접일정 신청 데이터 조회
         const { data: schedules, error } = await supabase
-            .from('interview_schedule')
+            .from('interview-schedule')
             .select('interview_date, interview_time, applicant_name, applicant_email')
             .order('interview_date')
             .order('interview_time');
