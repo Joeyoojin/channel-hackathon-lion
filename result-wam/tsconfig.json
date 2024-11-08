@@ -20,6 +20,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"],
+  "include": ["src", "src/pages/Send/FAQ.styled.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
