@@ -245,6 +245,20 @@ async function applyAction(channelId: string, user_name: string, user_email: str
         }
     }
 
+    // 처리된 결과를 DB에 저장
+    try {
+        const { data: insertData, error } = await supabase
+            .from('screened-resumes')
+        .insert({
+            applicant_name: user_name,
+            applicant_email: user_email,
+                resume_data: JSON.stringify(processedResults)
+            });
+    } catch (error) {
+        console.error("DB 저장 중 오류 발생:", error);
+        throw error;
+    }
+
     // 처리된 결과를 메시지로 변환 
     let sendAsBotMsg = `📝 ${user_name}(${user_email}) 지원서 제출 완료. DB 저장 완료`;
 
