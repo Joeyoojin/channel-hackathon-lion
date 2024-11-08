@@ -311,7 +311,7 @@ async function interviewScheduleRegister(channelId: string, user_name: string, u
                 interview_dates.map(([date, time]) => ({
                     applicant_name: user_name,
                     applicant_email: user_email, 
-                    interview_date: date,
+                    interview_date: new Date(date).toISOString().split('T')[0],
                     interview_time: parseInt(time)
                 }))
             );
