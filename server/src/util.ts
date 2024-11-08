@@ -58,7 +58,7 @@ async function registerCommand(accessToken: string) {
             commands: [
                 {
                     name: "apply",
-                    scope: "desk",
+                    scope: "front",
                     description: "입부 지원서를 작성합니다",
                     actionFunctionName: "apply",
                     alfMode: "disable",
@@ -66,7 +66,7 @@ async function registerCommand(accessToken: string) {
                 },
                 {
                     name: "faq",
-                    scope: "desk",
+                    scope: "front",
                     description: "지원 관련 정보를 확인합니다",
                     actionFunctionName: "faq",
                     alfMode: "disable",
@@ -74,7 +74,7 @@ async function registerCommand(accessToken: string) {
                 },
                 {
                     name: "result",
-                    scope: "desk",
+                    scope: "front",
                     description: "지원 결과를 확인합니다",
                     actionFunctionName: "result",
                     alfMode: "disable",
@@ -180,10 +180,7 @@ function result(wamName: string, callerId: string, params: any) {
     });
 }
 
-async function applyAction(channelId: string, groupId: string, broadcast: boolean, rootMessageId?: string) {
-    // 어떤 식으로든 지원서를 받아온다고 합시다
-    const resume_data = [{"Q1": "질문1", "A1": "답변1"}, {"Q2": "질문2", "A2": "답변2"}, {"Q3": "질문3", "A3": "답변3"}];
-    // 어떻게 받아와 !!!
+async function applyAction(channelId: string, user_name: string, user_email: string, resume_data: any[], groupId: string, broadcast: boolean, rootMessageId?: string) {
     const processedResults = [];
     
     for (const item of resume_data) {
@@ -248,18 +245,8 @@ async function applyAction(channelId: string, groupId: string, broadcast: boolea
         }
     }
 
-    // 처리된 결과를 메시지로 변환
-    let sendAsBotMsg = "📝 지원서 분석 결과\n\n";
-    processedResults.forEach((result, index) => {
-        sendAsBotMsg += `[${index + 1}번째 질문]\n`;
-        sendAsBotMsg += `질문: ${result.question}\n`;
-        sendAsBotMsg += `답변: ${result.answer}\n\n`;
-        sendAsBotMsg += `💡 예상 면접 질문:\n`;
-        sendAsBotMsg += `1. ${result.interview_question1}\n`;
-        sendAsBotMsg += `2. ${result.interview_question2}\n`;
-        sendAsBotMsg += `3. ${result.interview_question3}\n\n`;
-        sendAsBotMsg += `${'-'.repeat(30)}\n\n`;
-    });
+    // 처리된 결과를 메시지로 변환 
+    let sendAsBotMsg = `📝 ${user_name}(${user_email}) 지원서 제출 완료. DB 저장 완료`;
 
     const body = {
         method: "writeGroupMessage",
@@ -294,13 +281,7 @@ async function applyAction(channelId: string, groupId: string, broadcast: boolea
     }
 }
 
-async function interviewAction(channelId: string, groupId: string, broadcast: boolean, rootMessageId?: string) {
-    // 어떤 식으로든 면접 선택 일정을 받아온다고 합시다
-    const user_name = "홍길동";
-    const user_email = "hong@gmail.com";
-    const interview_dates = [["2024-11-10", "14"], ["2024-11-10", "15"], ["2024-11-12", "16"]];
-    // 어떻게 받아와 !!!
-
+async function interviewScheduleRegister(channelId: string, user_name: string, user_email: string, interview_dates: [string, string][], groupId: string, broadcast: boolean, rootMessageId?: string) {
     try {
         const { data: insertData, error } = await supabase
             .from('interview-schedule')
@@ -424,4 +405,27 @@ async function interviewScheduleStatus(channelId: string, groupId: string, broad
     }
 }
 
-export { requestIssueToken, registerCommand, verification, apply, faq, result, applyAction, interviewAction, interviewScheduleStatus };
+async function resultCheck(user_name: string, user_email: string) {
+    try {
+        const { data: resultData, error } = await supabase
+            .from('apply-result')
+            .select('pass')
+            .eq('applicant_name', user_name)
+            .eq('applicant_email', user_email);
+
+        if (error) {
+            throw error;
+        }
+
+        if (resultData && resultData.length > 0) {
+            return resultData[0].pass;
+        }
+        return false;
+    } catch (error) {
+        console.error("지원 결과 조회 중 오류 발생:", error);
+        // 찾을 수 없으므로 불합 처리
+        return false;
+    }
+}
+
+export { requestIssueToken, registerCommand, verification, apply, faq, result, applyAction, interviewScheduleRegister, interviewScheduleStatus, resultCheck };
