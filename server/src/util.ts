@@ -1,18 +1,20 @@
 import axios from 'axios';
 import * as crypto from 'crypto';
-import { createClient } from '@supabase/supabase-js';
+// import { createClient } from '@supabase/supabase-js';
+// import Groq from 'groq-sdk';
 
 require("dotenv").config();
 
 let channelTokenMap = new Map<string, [string, string, number]>();
 
-
 const defaultWamArgs = ["rootMessageId", "broadcast", "isPrivate"];
 
-const supabase = createClient(
-    process.env.SUPABASE_URL ?? '',
-    process.env.SUPABASE_ANON_KEY ?? ''
-);
+// const supabase = createClient(
+//     process.env.SUPABASE_URL ?? '',
+//     process.env.SUPABASE_ANON_KEY ?? ''
+// );
+
+// const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 async function getChannelToken(channelId: string): Promise<[string, string]> {
     const channelToken = channelTokenMap.get(channelId);
@@ -55,10 +57,34 @@ async function registerCommand(accessToken: string) {
             appId: process.env.APP_ID,
             commands: [
                 {
-                    name: "tutorial",
+                    name: "지원하기",
                     scope: "desk",
-                    description: "This is a desk command of App-tutorial",
-                    actionFunctionName: "tutorial",
+                    description: "입부 지원서를 작성합니다",
+                    actionFunctionName: "apply",
+                    alfMode: "disable",
+                    enabledByDefault: true,
+                },
+                {
+                    name: "면접일정 신청하기",
+                    scope: "desk",
+                    description: "면접 일정을 신청합니다",
+                    actionFunctionName: "interview",
+                    alfMode: "disable",
+                    enabledByDefault: true,
+                },
+                {
+                    name: "리크루팅 문의",
+                    scope: "desk",
+                    description: "지원 관련 정보를 확인합니다",
+                    actionFunctionName: "faq",
+                    alfMode: "disable",
+                    enabledByDefault: true,
+                },
+                {
+                    name: "결과 확인",
+                    scope: "desk",
+                    description: "지원 결과를 확인합니다",
+                    actionFunctionName: "result",
                     alfMode: "disable",
                     enabledByDefault: true,
                 }
@@ -188,15 +214,15 @@ function result(wamName: string, callerId: string, params: any) {
 }
 
 async function applyAction(channelId: string, groupId: string, broadcast: boolean, rootMessageId?: string) {
-    // implement
+    
 }
 
 async function interviewAction(channelId: string, groupId: string, broadcast: boolean, rootMessageId?: string) {
-    // implement
+    
 }
 
 async function interviewScheduleStatus(channelId: string, groupId: string, broadcast: boolean, rootMessageId?: string) {
-    // implement
+    
 }
 
-export { requestIssueToken, registerCommand, sendAsBot, tutorial, verification, apply, interview, faq, result, applyAction, interviewAction, interviewScheduleStatus };
+export { requestIssueToken, registerCommand, verification, apply, interview, faq, result, applyAction, interviewAction, interviewScheduleStatus };
