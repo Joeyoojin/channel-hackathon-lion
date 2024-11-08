@@ -1,8 +1,8 @@
 import styled from '@emotion/styled'
 
 export const Container = styled.div`
-  width: 385px;
-  height: 402px;
+  width: auto;
+  height: auto;
   padding: 20px;
   background-color: white;
   border-radius: 30px;
@@ -11,6 +11,7 @@ export const Container = styled.div`
   justify-content: start;
   align-items: center;
   gap: 45px;
+  position: relative; /* 상대 위치로 설정 */
 `
 
 export const Header = styled.div`
@@ -31,9 +32,27 @@ export const Header = styled.div`
   }
 
   .icon {
-    width: 24px; /* 6rem converted */
+    width: 24px;
     height: 24px;
-    position: relative;
+    cursor: pointer;
+    position: absolute;
+    top: 5px;
+    right: 10px; /* 우측 상단에 배치 */
+    margin-right: 20px;
+  }
+`
+
+export const CloseIcon = styled.div`
+  font-size: 30px;
+  font-weight: bold;
+  color: #ff7b00;
+  text-align: center;
+  line-height: 24px;
+  cursor: pointer;
+  margin-right: 20px;
+
+  &:hover {
+    color: #e06a00;
   }
 `
 
@@ -58,6 +77,7 @@ export const NormalText = styled.div`
   font-size: 15px;
   font-weight: normal;
   color: black;
+  padding-right: 5px;
 `
 
 export const ButtonWrapper = styled.div`
