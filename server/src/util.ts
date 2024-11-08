@@ -79,6 +79,14 @@ async function registerCommand(accessToken: string) {
                     actionFunctionName: "result",
                     alfMode: "disable",
                     enabledByDefault: true,
+                },
+                {
+                    name: "interview-schedule",
+                    scope: "desk",
+                    description: "지원자들의 취합된 면접 일정을 확인합니다",
+                    actionFunctionName: "interviewScheduleStatus",
+                    alfMode: "disable",
+                    enabledByDefault: true,
                 }
             ]
         }
