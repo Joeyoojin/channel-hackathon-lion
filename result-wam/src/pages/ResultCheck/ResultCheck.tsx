@@ -1,16 +1,12 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { callFunction, getWamData, setSize } from '../../utils/wam'
+import { callFunction, getWamData } from '../../utils/wam'
 import * as S from './ResultCheck.styled'
 
 function ResultCheck() {
   const navigate = useNavigate()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
-
-  useEffect(() => {
-    setSize(385, 370)
-  }, [])
 
   const appId = useMemo(() => getWamData('appId') ?? '', [])
   const chatId = useMemo(() => getWamData('chatId') ?? '', [])

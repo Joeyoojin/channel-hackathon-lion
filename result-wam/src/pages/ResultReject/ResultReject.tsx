@@ -1,12 +1,6 @@
-import { useEffect } from 'react'
-import { setSize } from '../../utils/wam'
 import * as S from './ResultReject.styled'
 
 function ResultReject() {
-  useEffect(() => {
-    setSize(385, 200)
-  }, [])
-
   return (
     <S.Container>
       <S.Header>
