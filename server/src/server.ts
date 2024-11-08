@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import path from 'path';
-import { requestIssueToken, registerCommand, apply, interview, faq, result, applyAction, interviewAction, interviewScheduleStatus, verification } from './util';
+import { requestIssueToken, registerCommand, apply, faq, result, applyAction, interviewAction, interviewScheduleStatus, verification } from './util';
 
 
 require("dotenv").config();
@@ -27,8 +27,6 @@ async function functionHandler(body: any) {
     switch (method) {
         case 'apply': // apply wam 띄우기
             return apply(WAM_NAMES.APPLY, callerId, body.params);
-        case 'interview': // interview wam 띄우기
-            return interview(WAM_NAMES.INTERVIEW, callerId, body.params);
         case 'faq': // faq wam 띄우기
             return faq(WAM_NAMES.FAQ, callerId, body.params);
         case 'result': // result wam 띄우기
