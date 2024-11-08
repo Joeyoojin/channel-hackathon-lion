@@ -11,7 +11,7 @@ export const Container = styled.div`
   flex-direction: column;
   justify-content: start;
   align-items: center;
-  gap: 43px;
+  gap: 23px;
 `
 
 export const Header = styled.div`
@@ -58,7 +58,7 @@ export const QuestionText = styled.span`
 
 export const TextArea = styled.textarea`
   width: 100%;
-  height: 115px;
+  height: 75px;
   padding: 12px;
   border-radius: 15px;
   border: 1px solid #ff7b00;
