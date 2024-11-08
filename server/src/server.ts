@@ -9,7 +9,6 @@ const app = express();
 
 const WAM_NAMES = {
     APPLY: 'apply',
-    INTERVIEW: 'interview',
     FAQ: 'faq',
     RESULT: 'result'
 }
@@ -76,7 +75,6 @@ async function server() {
         app.use(express.json());
         // app.use(`/resource/wam/${WAM_NAME}`, express.static(path.join(__dirname, '../../wam/dist')));
         app.use(`/resource/wam/${WAM_NAMES.APPLY}`, express.static(path.join(__dirname, '../../apply-wam/dist')));
-        app.use(`/resource/wam/${WAM_NAMES.INTERVIEW}`, express.static(path.join(__dirname, '../../interview-wam/dist')));
         app.use(`/resource/wam/${WAM_NAMES.FAQ}`, express.static(path.join(__dirname, '../../faq-wam/dist')));
         app.use(`/resource/wam/${WAM_NAMES.RESULT}`, express.static(path.join(__dirname, '../../result-wam/dist')));
 
