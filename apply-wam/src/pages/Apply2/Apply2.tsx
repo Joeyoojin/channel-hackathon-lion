@@ -20,6 +20,7 @@ function Apply2() {
   const chatType = useMemo(() => getWamData('chatType') ?? '', [])
   const broadcast = useMemo(() => Boolean(getWamData('broadcast') ?? false), [])
   const rootMessageId = useMemo(() => getWamData('rootMessageId'), [])
+  const channelId = useMemo(() => getWamData('channelId') ?? '', [])
 
   const question1 = '1. 지원 동기를 작성해주세요.'
   const question2 = '2. 관련 경험을 작성해주세요.'
@@ -31,6 +32,7 @@ function Apply2() {
         case 'bot':
           await callFunction(appId, 'applyAction', {
             input: {
+              channelId: channelId,
               groupId: chatId,
               broadcast,
               rootMessageId,

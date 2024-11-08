@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-
+import { useNavigate, useLocation } from 'react-router-dom'
 import Calendar from 'react-calendar'
 import 'react-calendar/dist/Calendar.css'
 import * as S from './InterviewDate.styled'
@@ -9,6 +8,7 @@ import { MouseEvent } from 'react'
 
 function InterviewDate() {
   const navigate = useNavigate()
+  const location = useLocation()
   const [date, setDate] = useState<Date>(new Date())
 
   const availableDates = [5, 6, 7, 8, 9]
@@ -38,7 +38,12 @@ function InterviewDate() {
             ) {
               const selectedDate = Array.isArray(newDate) ? newDate[0] : newDate
               setDate(selectedDate)
-              navigate('/time')
+              navigate('/time', {
+                state: {
+                  selectedDate: selectedDate.toISOString(),
+                  ...location.state
+                }
+              })
             }
           }}
           value={date}

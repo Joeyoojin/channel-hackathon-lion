@@ -16,6 +16,7 @@ function ResultCheck() {
   const chatId = useMemo(() => getWamData('chatId') ?? '', [])
   const broadcast = useMemo(() => Boolean(getWamData('broadcast') ?? false), [])
   const rootMessageId = useMemo(() => getWamData('rootMessageId'), [])
+  const channelId = useMemo(() => getWamData('channelId') ?? '', [])
   const chatType = useMemo(() => getWamData('chatType') ?? '', [])
 
   const handleSubmit = async (sender: string): Promise<void> => {
@@ -24,6 +25,7 @@ function ResultCheck() {
         case 'bot': {
           const response = await callFunction(appId, 'result-check', {
             input: {
+              channelId: channelId,
               groupId: chatId,
               broadcast,
               rootMessageId,
@@ -33,7 +35,9 @@ function ResultCheck() {
           })
 
           if (response.result) {
-            navigate('/result/pass')
+            navigate('/result/pass', { 
+              state: { name, email } 
+            })
           } else {
             navigate('/result/fail')
           }
