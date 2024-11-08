@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import path from 'path';
-import { requestIssueToken, registerCommand, apply, faq, result, applyAction, interviewAction, interviewScheduleStatus, verification } from './util';
+import { requestIssueToken, registerCommand, apply, faq, result, applyAction, interviewScheduleRegister, interviewScheduleStatus, resultCheck, verification } from './util';
 
 
 require("dotenv").config();
@@ -33,17 +33,23 @@ async function functionHandler(body: any) {
         case 'apply-action': // apply wam 액션처리 (제출 완료 버튼 눌렀을 때)
             await applyAction(
                 channelId,
+                body.params.input.username,
+                body.params.input.email,
+                body.params.input.resumeData,
                 body.params.input.groupId,
                 body.params.input.broadcast,
                 body.params.input.rootMessageId
             );
             return ({result: {}});
-        case 'interview-action': // interview wam 액션처리 (면접일정 신청 버튼 눌렀을 때)
-            await interviewAction(
+        case 'interview-schedule-register': // interview wam 액션처리 (면접일정 신청 버튼 눌렀을 때)
+            await interviewScheduleRegister(
                 channelId,
+                body.params.input.username,
+                body.params.input.email,
+                body.params.input.interviewDates,
                 body.params.input.groupId,
                 body.params.input.broadcast,
-                body.params.input.rootMessageId
+                body.params.input.rootMessageId,
             );
             return ({result: {}});
         case 'interview-schedule-status': // 면접일정 상태 확인
@@ -54,7 +60,12 @@ async function functionHandler(body: any) {
                 body.params.input.rootMessageId
             );
             return ({result: {}});
-        
+        case 'result-check': // 지원 결과 확인
+            await resultCheck(
+                body.params.input.username,
+                body.params.input.email
+            );
+            return ({result: {}});
         // case 'tutorial':
         //     return tutorial(WAM_NAME, callerId, body.params);
         // case 'sendAsBot':
