@@ -1,4 +1,8 @@
-# app-tutorial
+# 채널톡 해커톤을 위한 Lion Channel 팀 레포
+
+
+## app-tutorial
+
 
 Hello, world!
 
