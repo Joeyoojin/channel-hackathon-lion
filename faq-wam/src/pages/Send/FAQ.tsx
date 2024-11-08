@@ -1,17 +1,24 @@
 import * as Styled from './FAQ.styled'
-import { useEffect } from 'react'
-import { setSize } from '../../utils/wam'
 
 const FAQ = () => {
-  useEffect(() => {
-    setSize(385, 482)
-  }, [])
+  const handleClose = () => {
+    if (window.ChannelIOWam) {
+      window.ChannelIOWam.close()
+    } else {
+      console.error('ChannelIOWam is not available')
+    }
+  }
 
   return (
     <Styled.Container>
       <Styled.Header>
         <div className="title">자주 묻는 질문</div>
-        <div className="icon" />
+        <div
+          className="icon"
+          onClick={handleClose}
+        >
+          <Styled.CloseIcon>×</Styled.CloseIcon>
+        </div>
       </Styled.Header>
 
       <Styled.FAQItem>
