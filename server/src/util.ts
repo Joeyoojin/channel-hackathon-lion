@@ -93,7 +93,7 @@ async function registerCommand(accessToken: string) {
     };
 
     const headers = {
-        'x-accesㅎs-token': accessToken,
+        'x-access-token': accessToken,
         'Content-Type': 'application/json'
     };
 
