@@ -5,7 +5,6 @@ import * as S from './Apply2.styled'
 function Apply2() {
   const [motivation, setMotivation] = useState('')
   const [experience, setExperience] = useState('')
-  const [password, setPassword] = useState('')
 
   useEffect(() => {
     setSize(385, 686)
@@ -52,14 +51,13 @@ function Apply2() {
       <S.QuestionContainer>
         <S.QuestionHeader>
           <S.QuestionText>
-            지원서 수정 및 결과 확인에 사용될 비밀번호를 정해주세요.
+            3. 멋쟁이사자처럼에서 자신이 만들고 싶은 프로젝트를 제안해주세요.
           </S.QuestionText>
         </S.QuestionHeader>
-        <S.PasswordInput
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="비밀번호를 입력해주세요"
+        <S.TextArea
+          value={experience}
+          onChange={(e) => setExperience(e.target.value)}
+          placeholder="띄어쓰기 포함 700자 이내로 작성해주세요"
         />
       </S.QuestionContainer>
 
