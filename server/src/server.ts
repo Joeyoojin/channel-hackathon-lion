@@ -8,10 +8,10 @@ require("dotenv").config();
 const app = express();
 
 const WAM_NAMES = {
-    APPLY: '지원하기',
-    INTERVIEW: '면접일정 신청하기',
-    FAQ: '리크루팅 문의',
-    RESULT: '결과 확인'
+    APPLY: 'apply',
+    INTERVIEW: 'interview',
+    FAQ: 'faq',
+    RESULT: 'result'
 }
 
 async function startServer() {

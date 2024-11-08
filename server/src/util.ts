@@ -57,7 +57,7 @@ async function registerCommand(accessToken: string) {
             appId: process.env.APP_ID,
             commands: [
                 {
-                    name: "지원하기",
+                    name: "apply",
                     scope: "desk",
                     description: "입부 지원서를 작성합니다",
                     actionFunctionName: "apply",
@@ -65,7 +65,7 @@ async function registerCommand(accessToken: string) {
                     enabledByDefault: true,
                 },
                 {
-                    name: "면접일정 신청하기",
+                    name: "interview",
                     scope: "desk",
                     description: "면접 일정을 신청합니다",
                     actionFunctionName: "interview",
@@ -73,7 +73,7 @@ async function registerCommand(accessToken: string) {
                     enabledByDefault: true,
                 },
                 {
-                    name: "리크루팅 문의",
+                    name: "faq",
                     scope: "desk",
                     description: "지원 관련 정보를 확인합니다",
                     actionFunctionName: "faq",
@@ -81,7 +81,7 @@ async function registerCommand(accessToken: string) {
                     enabledByDefault: true,
                 },
                 {
-                    name: "결과 확인",
+                    name: "result",
                     scope: "desk",
                     description: "지원 결과를 확인합니다",
                     actionFunctionName: "result",
@@ -93,7 +93,7 @@ async function registerCommand(accessToken: string) {
     };
 
     const headers = {
-        'x-access-token': accessToken,
+        'x-accesㅎs-token': accessToken,
         'Content-Type': 'application/json'
     };
 
