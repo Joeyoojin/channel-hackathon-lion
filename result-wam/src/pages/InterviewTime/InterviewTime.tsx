@@ -20,7 +20,7 @@ function InterviewTime() {
     const chatId = useMemo(() => getWamData('chatId') ?? '', [])
     const broadcast = useMemo(() => Boolean(getWamData('broadcast') ?? false), [])
     const rootMessageId = useMemo(() => getWamData('rootMessageId'), [])
-    const chatType = useMemo(() => getWamData('chatType') ?? '', [])
+    // const chatType = useMemo(() => getWamData('chatType') ?? '', [])
     const channelId = useMemo(() => getWamData('channelId') ?? '', [])
 
     if (!selectedTime) {
@@ -28,25 +28,23 @@ function InterviewTime() {
       return
     }
 
-    if (chatType === 'userChat') {
-      await callFunction(appId, 'interview-schedule-register', {
-        input: {
-          channelId: channelId,
-          groupId: chatId,
-          broadcast,
-          rootMessageId,
-          username: name,
-          email,
-          interview_dates: [[
-            new Date(selectedDate).toISOString().split('T')[0],
-            selectedTime.split('시')[0]
-          ]],
-        },
-      })
+    await callFunction(appId, 'interview-schedule-register', {
+      input: {
+        channelId: channelId,
+        groupId: chatId,
+        broadcast,
+        rootMessageId,
+        username: name,
+        email,
+        interview_dates: [[
+          new Date(selectedDate).toISOString().split('T')[0],
+          selectedTime.split('시')[0]
+        ]],
+      },
+    })
       
-      localStorage.setItem('interviewTimeSelected', selectedTime)
-      navigate('/interview1')
-    }
+    localStorage.setItem('interviewTimeSelected', selectedTime)
+    navigate('/interview1')
   }
 
   const handleTimeChange = (time: string) => {
