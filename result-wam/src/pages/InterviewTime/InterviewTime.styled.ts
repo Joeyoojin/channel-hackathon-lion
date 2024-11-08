@@ -11,6 +11,8 @@ export const Container = styled.div`
   justify-content: start;
   align-items: center; /* 모든 항목을 수평 중앙 정렬 */
   gap: 34px;
+  max-height: 380px;
+  overflow-y: auto;
 `
 
 export const Header = styled.div`

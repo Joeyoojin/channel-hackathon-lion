@@ -8,6 +8,8 @@ export const Container = styled.div`
   gap: 34px;
   padding: 20px;
   border-radius: 30px;
+  max-height: 380px;
+  overflow-y: auto;
 `
 
 export const Header = styled.div`
