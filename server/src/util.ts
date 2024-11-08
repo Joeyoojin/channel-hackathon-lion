@@ -1,16 +1,18 @@
 import axios from 'axios';
 import * as crypto from 'crypto';
-
+import { createClient } from '@supabase/supabase-js';
 
 require("dotenv").config();
 
 let channelTokenMap = new Map<string, [string, string, number]>();
 
-const tutorialMsg = "This is a test message sent by a manager.";
-const sendAsBotMsg = "This is a test message sent by a bot.";
-const botName = "Bot";
 
 const defaultWamArgs = ["rootMessageId", "broadcast", "isPrivate"];
+
+const supabase = createClient(
+    process.env.SUPABASE_URL ?? '',
+    process.env.SUPABASE_ANON_KEY ?? ''
+);
 
 async function getChannelToken(channelId: string): Promise<[string, string]> {
     const channelToken = channelTokenMap.get(channelId);
@@ -76,35 +78,6 @@ async function registerCommand(accessToken: string) {
     }
 }
 
-async function sendAsBot(channelId: string, groupId: string, broadcast: boolean, rootMessageId?: string) {
-    const body = {
-        method: "writeGroupMessage",
-        params: {
-            channelId: channelId,
-            groupId: groupId,
-            rootMessageId: rootMessageId,
-            broadcast: broadcast,
-            dto: {
-                plainText: sendAsBotMsg,
-                botName: botName
-            }
-        }
-    }
-
-    const channelToken = await getChannelToken(channelId);
-
-    const headers = {
-        'x-access-token': channelToken[0],
-        'Content-Type': 'application/json'
-    };
-
-    const response = await axios.put(process.env.APPSTORE_URL ?? '', body, { headers });
-
-    if (response.data.error != null) {
-        throw new Error("send as bot error");
-    }
-}
-
 function verification(x_signature: string, body: string): boolean {
     const key: crypto.KeyObject = crypto.createSecretKey(Buffer.from(process.env.SIGNING_KEY ?? '', 'hex'));
     const mac = crypto.createHmac('sha256', key);
@@ -114,9 +87,8 @@ function verification(x_signature: string, body: string): boolean {
     return signature === x_signature;
 }
 
-function tutorial(wamName: string, callerId: string, params: any) {
+function apply(wamName: string, callerId: string, params: any) {
     const wamArgs = {
-        message: tutorialMsg,
         managerId: callerId,
     } as { [key: string]: any }
 
@@ -140,4 +112,91 @@ function tutorial(wamName: string, callerId: string, params: any) {
     });
 }
 
-export { requestIssueToken, registerCommand, sendAsBot, tutorial, verification };
+function interview(wamName: string, callerId: string, params: any) {
+    const wamArgs = {
+        managerId: callerId,
+    } as { [key: string]: any }
+
+    if (params.trigger.attributes) {
+        defaultWamArgs.forEach(k => {
+            if (k in params.trigger.attributes) {
+                wamArgs[k] = params.trigger.attributes[k]
+            }
+        })
+    }
+
+    return ({
+        result: {
+            type: "wam",
+            attributes: {
+                appId: process.env.APP_ID,
+                name: wamName,
+                wamArgs: wamArgs,
+            }
+        }
+    });
+}
+
+function faq(wamName: string, callerId: string, params: any) {
+    const wamArgs = {
+        managerId: callerId,
+    } as { [key: string]: any }
+
+    if (params.trigger.attributes) {
+        defaultWamArgs.forEach(k => {
+            if (k in params.trigger.attributes) {
+                wamArgs[k] = params.trigger.attributes[k]
+            }
+        })
+    }
+
+    return ({
+        result: {
+            type: "wam",
+            attributes: {
+                appId: process.env.APP_ID,
+                name: wamName,
+                wamArgs: wamArgs,
+            }
+        }
+    });
+}
+
+function result(wamName: string, callerId: string, params: any) {
+    const wamArgs = {
+        managerId: callerId,
+    } as { [key: string]: any }
+
+    if (params.trigger.attributes) {
+        defaultWamArgs.forEach(k => {
+            if (k in params.trigger.attributes) {
+                wamArgs[k] = params.trigger.attributes[k]
+            }
+        })
+    }
+
+    return ({
+        result: {
+            type: "wam",
+            attributes: {
+                appId: process.env.APP_ID,
+                name: wamName,
+                wamArgs: wamArgs,
+            }
+        }
+    });
+}
+
+async function applyAction(channelId: string, groupId: string, broadcast: boolean, rootMessageId?: string) {
+    // implement
+}
+
+async function interviewAction(channelId: string, groupId: string, broadcast: boolean, rootMessageId?: string) {
+    // implement
+}
+
+async function interviewScheduleStatus(channelId: string, groupId: string, broadcast: boolean, rootMessageId?: string) {
+    // implement
+}
+
+export { requestIssueToken, registerCommand, sendAsBot, tutorial, verification, apply, interview, faq, result, applyAction, interviewAction, interviewScheduleStatus };
