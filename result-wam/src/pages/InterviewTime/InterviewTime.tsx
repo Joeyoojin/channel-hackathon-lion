@@ -1,17 +1,51 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useMemo, useState } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import * as S from './InterviewTime.styled'
+import { callFunction } from '../../utils/wam'
+import { getWamData } from '../../utils/wam'
 
 function InterviewTime() {
   const navigate = useNavigate()
+  const location = useLocation()
   const [selectedTime, setSelectedTime] = useState<string | null>(null)
 
-  const handleSubmit = () => {
-    if (selectedTime) {
+  const { name, email, selectedDate } = location.state as { 
+    name: string; 
+    email: string;
+    selectedDate: string;
+  }
+
+  const handleSubmit = async () => {
+    const appId = useMemo(() => getWamData('appId') ?? '', [])
+    const chatId = useMemo(() => getWamData('chatId') ?? '', [])
+    const broadcast = useMemo(() => Boolean(getWamData('broadcast') ?? false), [])
+    const rootMessageId = useMemo(() => getWamData('rootMessageId'), [])
+    const chatType = useMemo(() => getWamData('chatType') ?? '', [])
+    const channelId = useMemo(() => getWamData('channelId') ?? '', [])
+
+    if (!selectedTime) {
+      alert('시간을 선택해주세요.')
+      return
+    }
+
+    if (chatType === 'userChat') {
+      await callFunction(appId, 'interview-schedule-register', {
+        input: {
+          channelId: channelId,
+          groupId: chatId,
+          broadcast,
+          rootMessageId,
+          username: name,
+          email,
+          interview_dates: [[
+            new Date(selectedDate).toISOString().split('T')[0],
+            selectedTime.split('시')[0]
+          ]],
+        },
+      })
+      
       localStorage.setItem('interviewTimeSelected', selectedTime)
       navigate('/interview1')
-    } else {
-      alert('시간을 선택해주세요.')
     }
   }
 

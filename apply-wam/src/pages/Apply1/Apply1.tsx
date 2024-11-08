@@ -8,9 +8,20 @@ function Apply1() {
   const [name, setName] = useState('')
   const [department, setDepartment] = useState('')
   const [email, setEmail] = useState('')
+  const [phoneNumber, setPhoneNumber] = useState('')
+
   useEffect(() => {
     setSize(385, 482)
   }, [])
+
+  const handleNext = () => {
+    navigate('/apply2', {
+      state: {
+        name,
+        email
+      }
+    })
+  }
 
   return (
     <S.Container>
@@ -22,7 +33,9 @@ function Apply1() {
         <S.InputLabel>이름</S.InputLabel>
         <S.Input
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setName(e.target.value)
+          }
           placeholder="이름을 입력해주세요"
         />
       </S.InputContainer>
@@ -31,7 +44,9 @@ function Apply1() {
         <S.InputLabel>학과 및 학번</S.InputLabel>
         <S.Input
           value={department}
-          onChange={(e) => setDepartment(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setDepartment(e.target.value)
+          }
           placeholder="'학과/학번' 형식으로 입력해주세요"
         />
       </S.InputContainer>
@@ -40,7 +55,9 @@ function Apply1() {
         <S.InputLabel>이메일</S.InputLabel>
         <S.Input
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setEmail(e.target.value)
+          }
           placeholder="이메일 주소를 입력해주세요"
         />
       </S.InputContainer>
@@ -48,13 +65,15 @@ function Apply1() {
       <S.InputContainer>
         <S.InputLabel>전화번호</S.InputLabel>
         <S.Input
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={phoneNumber}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setPhoneNumber(e.target.value)
+          }
           placeholder="전화번호를 '-' 없이 입력해주세요"
         />
       </S.InputContainer>
 
-      <S.NextButton onClick={() => navigate('/apply2')}>다음</S.NextButton>
+      <S.NextButton onClick={handleNext}>다음</S.NextButton>
     </S.Container>
   )
 }

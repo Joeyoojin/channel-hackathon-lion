@@ -1,14 +1,17 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 
-import Calendar, { CalendarProps } from 'react-calendar'
+import { useNavigate, useLocation } from 'react-router-dom'
+import Calendar from 'react-calendar'
 import 'react-calendar/dist/Calendar.css'
 import * as S from './InterviewDate.styled'
 import './Interview.css'
 
 function InterviewDate() {
   const navigate = useNavigate()
-  const [date, setDate] = useState<Date | null>(new Date())
+
+  const location = useLocation()
+  const [date, setDate] = useState<Date>(new Date())
+
 
   const availableDates = [5, 6, 7, 8, 9]
 
@@ -41,7 +44,27 @@ function InterviewDate() {
 
       <S.ContentContainer>
         <Calendar
-          onChange={handleDateChange}
+          onChange={(
+            newDate: Date | Date[] | null,
+            _event: MouseEvent<HTMLButtonElement>
+          ) => {
+            if (
+              newDate instanceof Date ||
+              (Array.isArray(newDate) &&
+                newDate.length === 1 &&
+                newDate[0] instanceof Date)
+            ) {
+              const selectedDate = Array.isArray(newDate) ? newDate[0] : newDate
+              setDate(selectedDate)
+              navigate('/time', {
+                state: {
+                  selectedDate: selectedDate.toISOString(),
+                  ...location.state
+                }
+              })
+            }
+          }}
+
           value={date}
           tileDisabled={tileDisabled}
           locale="ko"

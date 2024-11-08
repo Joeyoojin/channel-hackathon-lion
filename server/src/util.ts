@@ -1,7 +1,7 @@
 import axios from 'axios';
 import * as crypto from 'crypto';
-// import { createClient } from '@supabase/supabase-js';
-// import Groq from 'groq-sdk';
+import { createClient } from '@supabase/supabase-js';
+import Groq from 'groq-sdk';
 
 require("dotenv").config();
 
@@ -9,12 +9,12 @@ let channelTokenMap = new Map<string, [string, string, number]>();
 
 const defaultWamArgs = ["rootMessageId", "broadcast", "isPrivate"];
 
-// const supabase = createClient(
-//     process.env.SUPABASE_URL ?? '',
-//     process.env.SUPABASE_ANON_KEY ?? ''
-// );
+const supabase = createClient(
+    process.env.SUPABASE_URL ?? '',
+    process.env.SUPABASE_ANON_KEY ?? ''
+);
 
-// const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 async function getChannelToken(channelId: string): Promise<[string, string]> {
     const channelToken = channelTokenMap.get(channelId);
@@ -58,23 +58,15 @@ async function registerCommand(accessToken: string) {
             commands: [
                 {
                     name: "apply",
-                    scope: "desk",
+                    scope: "front",
                     description: "입부 지원서를 작성합니다",
                     actionFunctionName: "apply",
                     alfMode: "disable",
                     enabledByDefault: true,
                 },
                 {
-                    name: "interview",
-                    scope: "desk",
-                    description: "면접 일정을 신청합니다",
-                    actionFunctionName: "interview",
-                    alfMode: "disable",
-                    enabledByDefault: true,
-                },
-                {
                     name: "faq",
-                    scope: "desk",
+                    scope: "front",
                     description: "지원 관련 정보를 확인합니다",
                     actionFunctionName: "faq",
                     alfMode: "disable",
@@ -82,7 +74,7 @@ async function registerCommand(accessToken: string) {
                 },
                 {
                     name: "result",
-                    scope: "desk",
+                    scope: "front",
                     description: "지원 결과를 확인합니다",
                     actionFunctionName: "result",
                     alfMode: "disable",
@@ -114,31 +106,6 @@ function verification(x_signature: string, body: string): boolean {
 }
 
 function apply(wamName: string, callerId: string, params: any) {
-    const wamArgs = {
-        managerId: callerId,
-    } as { [key: string]: any }
-
-    if (params.trigger.attributes) {
-        defaultWamArgs.forEach(k => {
-            if (k in params.trigger.attributes) {
-                wamArgs[k] = params.trigger.attributes[k]
-            }
-        })
-    }
-
-    return ({
-        result: {
-            type: "wam",
-            attributes: {
-                appId: process.env.APP_ID,
-                name: wamName,
-                wamArgs: wamArgs,
-            }
-        }
-    });
-}
-
-function interview(wamName: string, callerId: string, params: any) {
     const wamArgs = {
         managerId: callerId,
     } as { [key: string]: any }
@@ -213,16 +180,266 @@ function result(wamName: string, callerId: string, params: any) {
     });
 }
 
-async function applyAction(channelId: string, groupId: string, broadcast: boolean, rootMessageId?: string) {
+async function applyAction(channelId: string, user_name: string, user_email: string, resume_data: any[], groupId: string, broadcast: boolean, rootMessageId?: string) {
+    const processedResults = [];
     
+    for (const item of resume_data) {
+        try {
+            const prompt = `
+다음은 자기소개서 내용입니다.
+
+1. 답변에서 개인을 식별할 수 있는 정보(이름, 학교명, 회사명, 지역명, 특정 대회명, 조직명 등)를 모두 단어 단위로 '***'로 마스킹하세요.
+   - 예시:
+     - "저는 서울대학교를 졸업했습니다." → "저는 ***를 졸업했습니다."
+     - "삼성전자에서 인턴십을 했습니다." → "***에서 인턴십을 했습니다."
+
+2. 질문-답변 쌍에 대해 면접에서 나올 수 있는 예상 질문을 한국어로 3개 생성하세요.
+   - 예상 질문은 답변 내용을 기반으로 생성하세요.
+
+자기소개서 내용:
+질문: "${item.Q1}"
+답변: "${item.A1}"
+
+출력 형식:
+{
+    "question": "원래 질문",
+    "answer": "마스킹된 답변",
+    "interview_question1": "예상 질문1",
+    "interview_question2": "예상 질문2",
+    "interview_question3": "예상 질문3"
 }
 
-async function interviewAction(channelId: string, groupId: string, broadcast: boolean, rootMessageId?: string) {
-    
+반드시 위의 출력 형식과 동일하게 JSON 형식으로 출력하고, 모든 내용은 한국어로 작성해주세요.
+`;
+
+            const completion = await groq.chat.completions.create({
+                messages: [
+                    {
+                        role: "user",
+                        content: prompt
+                    }
+                ],
+                model: "mixtral-8x7b-32768"
+            });
+
+            const content = completion.choices[0]?.message?.content;
+            if (!content) continue;
+
+            // JSON 부분 추출 (정규식 사용)
+            const match = content.match(/\{[\s\S]*\}/);
+            if (!match) continue;
+
+            const result = JSON.parse(match[0]);
+            processedResults.push(result);
+
+        } catch (error) {
+            console.error("처리 중 오류 발생:", error);
+            processedResults.push({
+                question: item.Q1,
+                answer: item.A1,
+                interview_question1: "** 에러 발생으로 예상 질문 생성 불가 **",
+                interview_question2: "** 에러 발생으로 예상 질문 생성 불가 **",
+                interview_question3: "** 에러 발생으로 예상 질문 생성 불가 **"
+            });
+            continue;
+        }
+    }
+
+    // 처리된 결과를 DB에 저장
+    try {
+        const { data: insertData, error } = await supabase
+            .from('screened-resumes')
+        .insert({
+            applicant_name: user_name,
+            applicant_email: user_email,
+                resume_data: JSON.stringify(processedResults)
+            });
+    } catch (error) {
+        console.error("DB 저장 중 오류 발생:", error);
+        throw error;
+    }
+
+    // 처리된 결과를 메시지로 변환 
+    let sendAsBotMsg = `📝 ${user_name}(${user_email}) 지원서 제출 완료. DB 저장 완료`;
+
+    const body = {
+        method: "writeGroupMessage",
+        params: {
+            channelId: channelId,
+            groupId: groupId,
+            rootMessageId: rootMessageId,
+            broadcast: broadcast,
+            dto: {
+                plainText: sendAsBotMsg,
+                botName: "지원서 분석 봇"
+            }
+        }
+    }
+
+    const channelToken = await getChannelToken(channelId);
+
+    const headers = {
+        'x-access-token': channelToken[0],
+        'Content-Type': 'application/json'
+    };
+
+    try {
+        const response = await axios.put(process.env.APPSTORE_URL ?? '', body, { headers });
+
+        if (response.data.error != null) {
+            throw new Error("메시지 전송 중 오류 발생");
+        }
+    } catch (error) {
+        console.error("메시지 전송 실패:", error);
+        throw error;
+    }
+}
+
+async function interviewScheduleRegister(channelId: string, user_name: string, user_email: string, interview_dates: [string, string][], groupId: string, broadcast: boolean, rootMessageId?: string) {
+    try {
+        const { data: insertData, error } = await supabase
+            .from('interview-schedule')
+            .insert(
+                interview_dates.map(([date, time]) => ({
+                    applicant_name: user_name,
+                    applicant_email: user_email, 
+                    interview_date: date,
+                    interview_time: parseInt(time)
+                }))
+            );
+
+        if (error) {
+            throw error;
+        }
+
+        // 메시지 포맷팅
+        let sendAsBotMsg = "✅ 면접 일정 등록 완료\n\n";
+        sendAsBotMsg += `신청자: ${user_name} (${user_email})\n\n`;
+        sendAsBotMsg += "📅 선택하신 면접 시간:\n";
+        interview_dates.forEach(([date, time]) => {
+            sendAsBotMsg += `• ${date} ${time}:00\n`;
+        });
+        
+        const body = {
+            method: "writeGroupMessage",
+            params: {
+                channelId: channelId,
+                groupId: groupId,
+                rootMessageId: rootMessageId,
+                broadcast: broadcast,
+                dto: {
+                    plainText: sendAsBotMsg,
+                    botName: "면접 일정 관리 봇"
+                }
+            }
+        };
+
+        const channelToken = await getChannelToken(channelId);
+        const headers = {
+            'x-access-token': channelToken[0],
+            'Content-Type': 'application/json'
+        };
+
+        const response = await axios.put(process.env.APPSTORE_URL ?? '', body, { headers });
+        if (response.data.error != null) {
+            throw new Error("메시지 전송 중 오류 발생");
+        }
+
+    } catch (error) {
+        console.error("면접 일정 등록 중 오류 발생:", error);
+        throw error;
+    }
 }
 
 async function interviewScheduleStatus(channelId: string, groupId: string, broadcast: boolean, rootMessageId?: string) {
-    
+    try {
+        // Supabase에서 면접일정 신청 데이터 조회
+        const { data: schedules, error } = await supabase
+            .from('interview-schedule')
+            .select('interview_date, interview_time, applicant_name, applicant_email')
+            .order('interview_date')
+            .order('interview_time');
+
+        if (error) {
+            throw error;
+        }
+
+        // (날짜, 시간)별로 지원자 grouping
+        const groupedSchedules = schedules.reduce((acc: any, curr) => {
+            const key = `${curr.interview_date}_${curr.interview_time}`;
+            if (!acc[key]) {
+                acc[key] = {
+                    date: curr.interview_date,
+                    time: curr.interview_time,
+                    applicants: []
+                };
+            }
+            acc[key].applicants.push(`${curr.applicant_name} (${curr.applicant_email})`);
+            return acc;
+        }, {});
+
+
+        let sendAsBotMsg = "📋 면접 일정 현황\n\n";
+        Object.values(groupedSchedules).forEach((schedule: any) => {
+            sendAsBotMsg += `📅 ${schedule.date} ${schedule.time}:00\n`;
+            schedule.applicants.forEach((applicant: string) => {
+                sendAsBotMsg += `• ${applicant}\n`;
+            });
+            sendAsBotMsg += "\n";
+        });
+
+        const body = {
+            method: "writeGroupMessage",
+            params: {
+                channelId: channelId,
+                groupId: groupId,
+                rootMessageId: rootMessageId,
+                broadcast: broadcast,
+                dto: {
+                    plainText: sendAsBotMsg,
+                    botName: "면접 일정 관리 봇"
+                }
+            }
+        };
+
+        const channelToken = await getChannelToken(channelId);
+        const headers = {
+            'x-access-token': channelToken[0],
+            'Content-Type': 'application/json'
+        };
+
+        const response = await axios.put(process.env.APPSTORE_URL ?? '', body, { headers });
+        if (response.data.error != null) {
+            throw new Error("메시지 전송 중 오류 발생");
+        }
+
+    } catch (error) {
+        console.error("면접 일정 조회 중 오류 발생:", error);
+        throw error;
+    }
 }
 
-export { requestIssueToken, registerCommand, verification, apply, interview, faq, result, applyAction, interviewAction, interviewScheduleStatus };
+async function resultCheck(user_name: string, user_email: string) {
+    try {
+        const { data: resultData, error } = await supabase
+            .from('apply-result')
+            .select('pass')
+            .eq('applicant_name', user_name)
+            .eq('applicant_email', user_email);
+
+        if (error) {
+            throw error;
+        }
+
+        if (resultData && resultData.length > 0) {
+            return resultData[0].pass;
+        }
+        return false;
+    } catch (error) {
+        console.error("지원 결과 조회 중 오류 발생:", error);
+        // 찾을 수 없으므로 불합 처리
+        return false;
+    }
+}
+
+export { requestIssueToken, registerCommand, verification, apply, faq, result, applyAction, interviewScheduleRegister, interviewScheduleStatus, resultCheck };
